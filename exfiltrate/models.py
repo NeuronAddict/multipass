@@ -3,6 +3,9 @@ from django.db import models
 
 class Domain(models.Model):
     name = models.CharField(max_length=200)
+    usernames_dict = models.CharField(max_length=200, default='')
+    passwords_dict = models.CharField(max_length=200, default='')
+    chunk_size = models.IntegerField(default=256)
 
 
 class Credential(models.Model):
