@@ -1,0 +1,26 @@
+{# insert api use here #}
+<html>
+
+<head>
+
+    <title></title>
+
+</head>
+
+<body>
+
+<script>
+
+    fetch('/exfiltrate/', {
+        method: 'GET',
+        body: JSON.stringify({
+            username: 'admin',
+            password: 'secret'
+        })
+    }).then(response => {console.log(response)})
+
+</script>
+
+</body>
+
+</html>
