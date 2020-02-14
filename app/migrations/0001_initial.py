@@ -26,7 +26,7 @@ class Migration(migrations.Migration):
                 ('username', models.CharField(max_length=400)),
                 ('password', models.CharField(max_length=400)),
                 ('found_date', models.DateTimeField(auto_now=True)),
-                ('domain', models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, to='exfiltrate.Domain')),
+                ('domain', models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, to='app.Domain')),
             ],
         ),
     ]
