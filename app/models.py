@@ -3,10 +3,23 @@ from django.db import models
 
 class Domain(models.Model):
     name = models.CharField(max_length=200)
-    usernames_dict = models.CharField(max_length=200, default='')
-    passwords_dict = models.CharField(max_length=200, default='')
     chunk_size = models.IntegerField(default=256)
     url = models.CharField(max_length=4096, default='')
+    username_offset = models.IntegerField(default=0)
+    password_offset = models.IntegerField(default=0)
+
+
+class Username(models.Model):
+    username = models.CharField(max_length=200)
+    domain = models.ForeignKey(Domain, on_delete=models.CASCADE, null=True)
+
+    def __str__(self):
+        return self.username
+
+
+class Password(models.Model):
+    password = models.CharField(max_length=200)
+    domain = models.ForeignKey(Domain, on_delete=models.CASCADE, null=True)
 
 
 class Credential(models.Model):

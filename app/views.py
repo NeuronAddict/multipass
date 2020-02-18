@@ -1,6 +1,6 @@
 import json
 
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.template import loader
 from django.views.decorators.csrf import csrf_exempt
 
@@ -26,8 +26,19 @@ def exfiltrate(request, domain):
 
 
 def usernames(request, domain):
-    return HttpResponse('emmanuel.lacourarie-ext@mousquetaires.com\n')
+    find = Domain.objects.get(name=domain)
+    data = find.username_set.all()[find.username_offset:find.username_offset + find.chunk_size]
+    find.username_offset += find.chunk_size
+    find.save()
+    # TODO : race condition
+    return JsonResponse({'usernames': list(data)})
+
 
 
 def passwords(request, domain):
-    return HttpResponse('test\nMousquetaires1\ncoucou\n')
+    find = Domain.objects.get(name=domain)
+    data = find.password_set.all()[find.password_offset:find.password_offset + find.chunk_size]
+    find.password_offset += find.chunk_size
+    find.save()
+    # TODO : race condition
+    return JsonResponse({'passwords': list(data)})
