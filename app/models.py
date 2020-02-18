@@ -6,6 +6,7 @@ class Domain(models.Model):
     usernames_dict = models.CharField(max_length=200, default='')
     passwords_dict = models.CharField(max_length=200, default='')
     chunk_size = models.IntegerField(default=256)
+    url = models.CharField(max_length=4096, default='')
 
 
 class Credential(models.Model):

