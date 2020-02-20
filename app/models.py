@@ -10,7 +10,7 @@ class Domain(models.Model):
 
 
 class Username(models.Model):
-    username = models.CharField(max_length=200)
+    username = models.CharField(max_length=200, unique=True)
     domain = models.ForeignKey(Domain, on_delete=models.CASCADE, null=True)
 
     def __str__(self):
@@ -18,8 +18,11 @@ class Username(models.Model):
 
 
 class Password(models.Model):
-    password = models.CharField(max_length=200)
+    password = models.CharField(max_length=200, unique=True)
     domain = models.ForeignKey(Domain, on_delete=models.CASCADE, null=True)
+
+    def __str__(self):
+        return self.password
 
 
 class Credential(models.Model):
