@@ -1,12 +1,11 @@
 import json
 
 from django.test import TestCase
-from django.utils import timezone
 
-from .models import Domain, Username
+from .models import Domain
 
 
-class QuestionModelTests(TestCase):
+class AppModelTests(TestCase):
 
     def test_usernames_to_json(self):
         usernames = [
