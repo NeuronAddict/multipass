@@ -1,26 +1,21 @@
 import unittest
 
-from django.test import Client
+from django.test import Client, TestCase
 
-from app.models import Domain
+from app.models import Domain, Credential
 
 
-class GetProbeTest(unittest.TestCase):
+class GetProbeTest(TestCase):
 
     @classmethod
-    def setUpClass(cls) -> None:
-        super().setUpClass()
+    def setUpTestData(cls):
+        cls.domain = Domain(name='victim', url='victim.org')
+        cls.domain.save()
 
-        domain = Domain(name='victim', url='victim.org')
-        domain.save()
-
-        domain.username_set.create(username='joseph')
-        domain.username_set.create(username='pablo')
-        domain.password_set.create(password='coucou')
-        domain.password_set.create(password='secret')
-
-    def setUp(self) -> None:
-        self.client = Client()
+        cls.domain.username_set.create(username='joseph')
+        cls.domain.username_set.create(username='pablo')
+        cls.domain.password_set.create(password='coucou')
+        cls.domain.password_set.create(password='secret')
 
     def test_get_usernames(self):
         response = self.client.get('/app/victim/usernames/')
@@ -35,3 +30,12 @@ class GetProbeTest(unittest.TestCase):
             {'password': 'coucou'},
             {'password': 'secret'},
         ]})
+
+    def test_get_exfiltrate(self):
+        response = self.client.post('/app/victim/exfiltrate/', content_type='application/json',
+                                    data={'username': 'pablo', 'password': 'coucou'})
+        self.assertIs(response.status_code, 204)
+        creds = Domain.objects.get(name='victim').credential_set.all()
+        self.assertIs(len(creds), 1)
+        self.assertEqual(creds[0].username, 'pablo')
+        self.assertEqual(creds[0].password, 'coucou')
