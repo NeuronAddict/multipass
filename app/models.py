@@ -2,7 +2,7 @@ from django.db import models
 
 
 class Domain(models.Model):
-    name = models.CharField(max_length=200)
+    name = models.CharField(max_length=200, unique=True)
     chunk_size = models.IntegerField(default=256)
     url = models.CharField(max_length=4096, default='')
     username_offset = models.IntegerField(default=0)
