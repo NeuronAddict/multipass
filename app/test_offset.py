@@ -1,6 +1,5 @@
 from django.test import TestCase
 
-from app.models import Client, Domain
 from app.offset import *
 
 CHUNK_SIZE = 256
