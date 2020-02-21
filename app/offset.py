@@ -7,6 +7,7 @@ from app.models import Offset
 class OffsetUtils:
 
     @classmethod
+    @transaction.atomic
     def next_username_offset(cls, client, now: timezone.datetime) -> Offset:
         # dernier offset :
         # - non aquitté
