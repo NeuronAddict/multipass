@@ -32,8 +32,10 @@ class Offset(models.Model):
     def values(self):
         if self.type == 0:
             return Username.objects.filter(id__range=[self.value, self.value+256]).values('username')
-        if self.type == 1:
-            return Password.objects.filter(id__range=[self.value, self.value + 256]).values('password')
+        else:
+            if self.type == 1:
+                return Password.objects.filter(id__range=[self.value, self.value + 256]).values('password')
+            raise Exception('Bad type for Offset {}: {}'.format(self, self.type))
 
 
 class Username(models.Model):
