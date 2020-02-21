@@ -2,9 +2,11 @@ import json
 
 from django.http import HttpResponse, JsonResponse
 from django.template import loader
+from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
 
-from app.models import Credential, Domain
+from app.models import Credential, Domain, Client
+from app.offset import OffsetUtils
 
 
 def index(request, domain):
@@ -27,11 +29,11 @@ def exfiltrate(request, domain):
 
 def usernames(request, domain):
     find = Domain.objects.get(name=domain)
-    data = find.username_set.all()[0:find.username_offset + find.chunk_size]
-    find.username_offset += find.chunk_size
-    find.save()
+    client = Client.objects.get(uuid=request.GET['uuid'])
+    offset = OffsetUtils.next_username_offset(client, timezone.now())
+
     # TODO : race condition
-    return JsonResponse({'usernames': list(data.values('username'))})
+    return JsonResponse({'usernames': list(offset.values())})
 
 
 def passwords(request, domain):

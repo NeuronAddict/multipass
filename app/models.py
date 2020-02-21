@@ -29,6 +29,10 @@ class Offset(models.Model):
     last_send = models.DateTimeField(default=timezone.now)
     client = models.ForeignKey(Client, on_delete=models.PROTECT)
 
+    def values(self):
+        if self.type == 0:
+            return Username.objects.filter(id__range=[self.value, self.value+256]).values('username')
+
 
 class Username(models.Model):
     username = models.CharField(max_length=200, unique=True)

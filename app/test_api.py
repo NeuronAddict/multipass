@@ -1,8 +1,6 @@
-import unittest
-
 from django.test import Client, TestCase
 
-from app.models import Domain, Credential
+from app.models import Domain, Client
 
 
 class GetProbeTest(TestCase):
@@ -17,15 +15,18 @@ class GetProbeTest(TestCase):
         cls.domain.password_set.create(password='coucou')
         cls.domain.password_set.create(password='secret')
 
+        cls.first_client = Client(domain=cls.domain, ip='192.168.0.1', user_agent='tester 1')
+        cls.first_client.save()
+
     def test_get_usernames(self):
-        response = self.client.get('/app/victim/usernames/')
+        response = self.client.get('/app/victim/usernames/', data={'uuid': self.first_client.uuid})
         self.assertDictEqual(response.json(), {'usernames': [
             {'username': 'joseph'},
             {'username': 'pablo'},
         ]})
 
     def test_get_passwords(self):
-        response = self.client.get('/app/victim/passwords/')
+        response = self.client.get('/app/victim/passwords/', data={'uuid': self.first_client.uuid})
         self.assertDictEqual(response.json(), {'passwords': [
             {'password': 'coucou'},
             {'password': 'secret'},
