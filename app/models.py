@@ -32,11 +32,12 @@ class Offset(models.Model):
     domain = models.ForeignKey(Domain, on_delete=models.CASCADE)
 
     def values(self):
+        index = self.value+1
         if self.type == 0:
-            return Username.objects.filter(id__range=[self.value, self.value+256]).values('username')
+            return Username.objects.filter(id__range=[index, index + self.domain.chunk_size-1]).values('username')
         else:
             if self.type == 1:
-                return Password.objects.filter(id__range=[self.value, self.value + 256]).values('password')
+                return Password.objects.filter(id__range=[index, index + self.domain.chunk_size-1]).values('password')
             raise Exception('Bad type for Offset {}: {}'.format(self, self.type))
 
 
