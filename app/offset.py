@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.db import transaction
 from django.utils import timezone
 
@@ -27,7 +28,7 @@ def next_offset(domain: Domain, client, now: timezone.datetime, type=0) -> Offse
         if len(last) == 0:
             offset = Offset(value=0, client=client, domain=domain, type=type, last_send=now)
         else:
-            offset = Offset(value=last[0].value + 256, client=client, domain=domain, type=type, last_send=now)
+            offset = Offset(value=last[0].value + domain.chunk_size, client=client, domain=domain, type=type, last_send=now)
         offset.save()
         return offset
     else:

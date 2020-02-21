@@ -3,12 +3,14 @@ from django.test import TestCase
 from app.models import Client, Domain
 from app.offset import *
 
+CHUNK_SIZE = 256
+
 
 class OffsetTests(TestCase):
 
     # noinspection PyAttributeOutsideInit
     def setUp(self):
-        self.domain = Domain(name='victim')
+        self.domain = Domain(name='victim', chunk_size=CHUNK_SIZE)
         self.domain.save()
         self.first_client = Client(ip='129.168.0.1', user_agent='tester')
         self.first_client.save()
@@ -41,16 +43,16 @@ class OffsetTests(TestCase):
 
         offset2 = next_username_offset(self.domain, self.bogged_client, date1)
         offset2.save()
-        self.assertEqual(offset2.value, 256)
+        self.assertEqual(offset2.value, CHUNK_SIZE)
         self.assertEqual(offset2.client, self.bogged_client)
 
         offset3 = next_username_offset(self.domain, self.first_client, date1)
         offset3.save()
-        self.assertEqual(offset3.value, 256*2)
+        self.assertEqual(offset3.value, CHUNK_SIZE*2)
         self.assertEqual(offset3.client, self.first_client)
 
         offset2_2 = next_username_offset(self.domain, self.second_client, date2)
-        self.assertEqual(offset2_2.value, 256)
+        self.assertEqual(offset2_2.value, CHUNK_SIZE)
         self.assertEqual(offset2_2.client, self.second_client)
 
         ack(offset3)
@@ -58,15 +60,15 @@ class OffsetTests(TestCase):
         ack(offset2_2)
 
         offset4 = next_username_offset(self.domain, self.first_client, date2)
-        self.assertEqual(offset4.value, 256*3)
+        self.assertEqual(offset4.value, CHUNK_SIZE*3)
         self.assertEqual(offset4.client, self.first_client)
 
         offset5 = next_username_offset(self.domain, self.second_client, date2)
-        self.assertEqual(offset5.value, 256 * 4)
+        self.assertEqual(offset5.value, CHUNK_SIZE * 4)
         self.assertEqual(offset5.client, self.second_client)
 
         offset6 = next_username_offset(self.domain, self.bogged_client, date2)
-        self.assertEqual(offset6.value, 256 * 5)
+        self.assertEqual(offset6.value, CHUNK_SIZE * 5)
         self.assertEqual(offset6.client, self.bogged_client)
 
         ack(offset4)
@@ -74,5 +76,5 @@ class OffsetTests(TestCase):
         ack(offset5)
 
         offset6_2 = next_username_offset(self.domain, self.second_client, date3)
-        self.assertEqual(offset6_2.value, 256 * 5)
+        self.assertEqual(offset6_2.value, CHUNK_SIZE * 5)
         self.assertEqual(offset6_2.client, self.second_client)

@@ -1,11 +1,13 @@
 import uuid
+
+from django.conf import settings
 from django.db import models
 from django.utils import timezone
 
 
 class Domain(models.Model):
     name = models.CharField(max_length=200, unique=True)
-    chunk_size = models.IntegerField(default=256)
+    chunk_size = models.IntegerField(default=settings.DEFAULT_CHUNK_SIZE)
     url = models.CharField(max_length=4096, default='')
     username_offset = models.IntegerField(default=0)
     password_offset = models.IntegerField(default=0)
