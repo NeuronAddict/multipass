@@ -12,7 +12,9 @@ class OffsetUtils:
         # dernier offset :
         # - non aquitté
         # - en timeout
-        last_nack_timeouts = Offset.objects.filter(last_send__lt=(now - timezone.timedelta(minutes=15)), ack=False, type=0).order_by('id')[:1]
+        last_nack_timeouts = Offset.objects \
+                                 .filter(last_send__lt=(now - timezone.timedelta(minutes=15)), ack=False,
+                                         type=0).order_by('id')[:1]
 
         if len(last_nack_timeouts) == 0:
             # pas de dernier offset non ack en timeout, il faut en créer un.
