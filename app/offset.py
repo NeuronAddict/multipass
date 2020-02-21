@@ -1,19 +1,19 @@
 from django.db import transaction
 from django.utils import timezone
 
-from app.models import Offset
+from app.models import Offset, Client, Domain
 
 
-def next_username_offset(client, now: timezone.datetime) -> Offset:
-    return next_offset(client, now, 0)
+def next_username_offset(domain: Domain, client: Client, now: timezone.datetime) -> Offset:
+    return next_offset(domain, client, now, 0)
 
 
-def next_password_offset(client, now: timezone.datetime) -> Offset:
-    return next_offset(client, now, 1)
+def next_password_offset(domain: Domain, client, now: timezone.datetime) -> Offset:
+    return next_offset(domain, client, now, 1)
 
 
 @transaction.atomic
-def next_offset(client, now: timezone.datetime, type=0) -> Offset:
+def next_offset(domain: Domain, client, now: timezone.datetime, type=0) -> Offset:
     # dernier offset :
     # - non aquitté
     # - en timeout
@@ -25,9 +25,9 @@ def next_offset(client, now: timezone.datetime, type=0) -> Offset:
         # pas de dernier offset non ack en timeout, il faut en créer un.
         last = Offset.objects.filter(type=type).order_by('-value')[:1]
         if len(last) == 0:
-            offset = Offset(value=0, client=client, type=type, last_send=now)
+            offset = Offset(value=0, client=client, domain=domain, type=type, last_send=now)
         else:
-            offset = Offset(value=last[0].value + 256, client=client, type=type, last_send=now)
+            offset = Offset(value=last[0].value + 256, client=client, domain=domain, type=type, last_send=now)
         offset.save()
         return offset
     else:

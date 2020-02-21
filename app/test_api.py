@@ -15,7 +15,7 @@ class GetProbeTest(TestCase):
         cls.domain.password_set.create(password='coucou')
         cls.domain.password_set.create(password='secret')
 
-        cls.first_client = Client(domain=cls.domain, ip='192.168.0.1', user_agent='tester 1')
+        cls.first_client = Client(ip='192.168.0.1', user_agent='tester 1')
         cls.first_client.save()
 
     def test_get_usernames(self):
