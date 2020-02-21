@@ -1,12 +1,13 @@
 from django.test import TestCase
 from django.utils import timezone
 
-from app.models import Client, Domain, Offset
+from app.models import Client, Domain
 from app.offset import OffsetUtils
 
 
 class OffsetTests(TestCase):
 
+    # noinspection PyAttributeOutsideInit
     def setUp(self):
         self.domain = Domain(name='victim')
         self.domain.save()
@@ -76,4 +77,3 @@ class OffsetTests(TestCase):
         offset6_2 = OffsetUtils.next_username_offset(self.second_client, date3)
         self.assertEqual(offset6_2.value, 256 * 5)
         self.assertEqual(offset6_2.client, self.second_client)
-
