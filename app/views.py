@@ -27,14 +27,14 @@ def exfiltrate(request, domain):
 
 
 def usernames(request, domain):
-    client = Client.objects.get(uuid=request.GET['uuid'])
+    client = Client.objects.get(uuid=request.headers['X-CLIENT-UUID'])
     offset = next_username_offset(Domain.objects.get(name=domain), client, timezone.now())
 
     return JsonResponse({'usernames': list(offset.values())})
 
 
 def passwords(request, domain):
-    client = Client.objects.get(uuid=request.GET['uuid'])
+    client = Client.objects.get(uuid=request.headers['X-CLIENT-UUID'])
     offset = next_password_offset(Domain.objects.get(name=domain), client, timezone.now())
 
     return JsonResponse({'passwords': list(offset.values())})
