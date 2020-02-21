@@ -1,6 +1,5 @@
-from datetime import datetime
-
 from django.test import TestCase
+from django.utils import timezone
 
 from app.models import Client, Domain, Offset
 from app.offset import OffsetUtils
@@ -19,19 +18,35 @@ class OffsetTests(TestCase):
         cls.bogged_client.save()
 
     def test_bogged_offset(self):
-        first_offset = OffsetUtils.next_username_offset(self.first_client, datetime(2020, 2, 20, 1, 15, 1))
+        """
+        Test with:
+          - first offset ack
+          - second on timeout
+          - third nack, notimeout
+          - 4th must be second
+        :return:
+        """
+
+        first_date = timezone.datetime(2020, 2, 20, 0, 0, 0)
+        second_date = timezone.datetime(2020, 2, 20, 2, 0, 0)
+
+        first_offset = OffsetUtils.next_username_offset(self.first_client, first_date)
         self.assertEqual(first_offset.value, 0)
+        self.assertEqual(first_offset.client, self.first_client)
 
         first_offset.ack = True
         first_offset.save()
 
-        second_offset = Offset(value=256, type=0, client=self.bogged_client, last_send=datetime(2020, 2, 20, 0, 0, 0))
+        second_offset = OffsetUtils.next_username_offset(self.bogged_client, first_date)
         second_offset.save()
+        self.assertEqual(second_offset.value, 256)
+        self.assertEqual(second_offset.client, self.bogged_client)
 
-        third_offset = Offset(value=256*2, type=0, client=self.first_client, ack=True)
+        third_offset = OffsetUtils.next_username_offset(self.first_client, first_date)
         third_offset.save()
+        self.assertEqual(third_offset.value, 512)
+        self.assertEqual(third_offset.client, self.first_client)
 
-        last = OffsetUtils.next_username_offset(self.first_client, datetime(2020, 2, 20, 1, 15, 1))
+        last = OffsetUtils.next_username_offset(self.first_client, second_date)
         self.assertEqual(last.value, 256)
-
-
+        self.assertEqual(last.client, self.first_client)
