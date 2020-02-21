@@ -28,18 +28,14 @@ def exfiltrate(request, domain):
 
 
 def usernames(request, domain):
-    find = Domain.objects.get(name=domain)
     client = Client.objects.get(uuid=request.GET['uuid'])
     offset = OffsetUtils.next_username_offset(client, timezone.now())
 
-    # TODO : race condition
     return JsonResponse({'usernames': list(offset.values())})
 
 
 def passwords(request, domain):
-    find = Domain.objects.get(name=domain)
-    data = find.password_set.all()[0:find.password_offset + find.chunk_size]
-    find.password_offset += find.chunk_size
-    find.save()
-    # TODO : race condition
-    return JsonResponse({'passwords': list(data.values('password'))})
+    client = Client.objects.get(uuid=request.GET['uuid'])
+    offset = OffsetUtils.next_password_offset(client, timezone.now())
+
+    return JsonResponse({'passwords': list(offset.values())})

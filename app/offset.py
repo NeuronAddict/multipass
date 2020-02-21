@@ -7,22 +7,30 @@ from app.models import Offset
 class OffsetUtils:
 
     @classmethod
-    @transaction.atomic
     def next_username_offset(cls, client, now: timezone.datetime) -> Offset:
+        return cls.next_offset(client, now, 0)
+
+    @classmethod
+    def next_password_offset(cls, client, now: timezone.datetime) -> Offset:
+        return cls.next_offset(client, now, 1)
+
+    @classmethod
+    @transaction.atomic
+    def next_offset(cls, client, now: timezone.datetime, type=0) -> Offset:
         # dernier offset :
         # - non aquitté
         # - en timeout
         last_nack_timeouts = Offset.objects \
                                  .filter(last_send__lt=(now - timezone.timedelta(minutes=15)), ack=False,
-                                         type=0).order_by('id')[:1]
+                                         type=type).order_by('id')[:1]
 
         if len(last_nack_timeouts) == 0:
             # pas de dernier offset non ack en timeout, il faut en créer un.
-            last = Offset.objects.filter(type=0).order_by('-value')[:1]
+            last = Offset.objects.filter(type=type).order_by('-value')[:1]
             if len(last) == 0:
-                offset = Offset(value=0, client=client, type=0, last_send=now)
+                offset = Offset(value=0, client=client, type=type, last_send=now)
             else:
-                offset = Offset(value=last[0].value + 256, client=client, type=0, last_send=now)
+                offset = Offset(value=last[0].value + 256, client=client, type=type, last_send=now)
             offset.save()
             return offset
         else:
