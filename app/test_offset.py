@@ -37,8 +37,7 @@ class OffsetTests(TestCase):
         self.assertEqual(offset1.value, 0)
         self.assertEqual(offset1.client, self.first_client)
 
-        offset1.ack = True
-        offset1.save()
+        OffsetUtils.ack(offset1)
 
         offset2 = OffsetUtils.next_username_offset(self.bogged_client, date1)
         offset2.save()
@@ -54,11 +53,9 @@ class OffsetTests(TestCase):
         self.assertEqual(offset2_2.value, 256)
         self.assertEqual(offset2_2.client, self.second_client)
 
-        offset3.ack = True
-        offset3.save()
+        OffsetUtils.ack(offset3)
 
-        offset2_2.ack = True
-        offset2_2.save()
+        OffsetUtils.ack(offset2_2)
 
         offset4 = OffsetUtils.next_username_offset(self.first_client, date2)
         self.assertEqual(offset4.value, 256*3)
@@ -72,11 +69,9 @@ class OffsetTests(TestCase):
         self.assertEqual(offset6.value, 256 * 5)
         self.assertEqual(offset6.client, self.bogged_client)
 
-        offset4.ack = True
-        offset4.save()
+        OffsetUtils.ack(offset4)
 
-        offset5.ack = True
-        offset5.save()
+        OffsetUtils.ack(offset5)
 
         offset6_2 = OffsetUtils.next_username_offset(self.second_client, date3)
         self.assertEqual(offset6_2.value, 256 * 5)

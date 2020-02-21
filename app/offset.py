@@ -32,3 +32,8 @@ class OffsetUtils:
             last_nack_timeout.last_send = now
             last_nack_timeout.save()
             return last_nack_timeout
+
+    @classmethod
+    def ack(cls, offset: Offset) -> None:
+        offset.ack = True
+        offset.save()
