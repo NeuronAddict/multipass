@@ -18,18 +18,24 @@ def next_offset(domain: Domain, client, now: timezone.datetime, type=0) -> Offse
     # dernier offset :
     # - non aquitté
     # - en timeout
-    last_nack_timeouts = Offset.objects \
-                             .filter(last_send__lt=(now - timezone.timedelta(minutes=15)), ack=False,
-                                     type=type).order_by('id')[:1]
+
+    if client.current_offset is not None:
+        return client.current_offset
+
+    last_nack_timeouts = Offset.objects.filter(last_send__lt=(now - timezone.timedelta(minutes=15)), ack=False) \
+                             .order_by('id')[:1]
 
     if len(last_nack_timeouts) == 0:
         # pas de dernier offset non ack en timeout, il faut en créer un.
-        last = Offset.objects.filter(type=type).order_by('-value')[:1]
+        last = Offset.objects.order_by('-value')[:1]
         if len(last) == 0:
-            offset = Offset(value=0, client=client, domain=domain, type=type, last_send=now)
+            offset = Offset(value=0, domain=domain, last_send=now)
+
         else:
-            offset = Offset(value=last[0].value + domain.chunk_size, client=client, domain=domain, type=type, last_send=now)
+            offset = Offset(value=last[0].value + domain.chunk_size, domain=domain, last_send=now)
         offset.save()
+        client.current_offset = offset
+        client.save()
         return offset
     else:
         # on reprend le dernier offset qui est tombé en timeout.
@@ -37,9 +43,14 @@ def next_offset(domain: Domain, client, now: timezone.datetime, type=0) -> Offse
         last_nack_timeout.client = client
         last_nack_timeout.last_send = now
         last_nack_timeout.save()
+        client.current_offset = last_nack_timeout
+        client.save()
         return last_nack_timeout
 
 
-def ack(offset: Offset) -> None:
-    offset.ack = True
-    offset.save()
+@transaction.atomic
+def ack(client: Client) -> None:
+    client.current_offset.ack = True
+    client.current_offset.save()
+    client.current_offset = None
+    client.save()
