@@ -6,6 +6,7 @@ from django.utils import timezone
 from app.models import Domain, Client
 
 CHUNK_SIZE = 4
+PROBES_COUNT = 5
 
 
 class SequenceTest(TestCase):
@@ -15,10 +16,10 @@ class SequenceTest(TestCase):
         cls.domain = Domain(name='victim', url='victim.org', chunk_size=CHUNK_SIZE)
         cls.domain.save()
 
-        for i in range(0, 5):
+        for i in range(0, PROBES_COUNT):
             cls.domain.username_set.create(username='username{}'.format(i))
 
-        for i in range(0, 5):
+        for i in range(0, PROBES_COUNT):
             cls.domain.password_set.create(password='password{}'.format(i))
 
         cls.first_client = Client(ip='192.168.0.1', user_agent='tester 1')
@@ -75,10 +76,10 @@ class SequenceTest(TestCase):
 
     def assert_response_range(self, response, offset):
         probes = []
-        for i in range(0, 4):
-            if offset + i >= 5*5:
+        for i in range(0, PROBES_COUNT - 1):
+            if offset + i >= PROBES_COUNT * PROBES_COUNT:
                 break
-            password = 'password{}'.format(int((offset + i) / 5))
-            username = 'username{}'.format((offset + i) % 5)
+            password = 'password{}'.format(int((offset + i) / PROBES_COUNT))
+            username = 'username{}'.format((offset + i) % PROBES_COUNT)
             probes.append({'username': username, 'password': password})
         self.assertDictEqual(response.json(), {'probes': probes})
