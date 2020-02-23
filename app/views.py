@@ -2,9 +2,12 @@ import json
 
 from django.http import HttpResponse, JsonResponse
 from django.template import loader
+from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
 
-from app.models import Credential, Domain
+from app import offset
+from app.models import Credential, Domain, Client
+from app.offset import next_username_offset
 
 
 def index(request, domain):
@@ -25,20 +28,16 @@ def exfiltrate(request, domain):
     return HttpResponse(status=204)
 
 
-def usernames(request, domain):
-    find = Domain.objects.get(name=domain)
-    data = find.username_set.all()[find.username_offset:find.username_offset + find.chunk_size]
-    find.username_offset += find.chunk_size
-    find.save()
-    # TODO : race condition
-    return JsonResponse({'usernames': list(data)})
+def probes(request, domain):
+    client = Client.objects.get(uuid=request.headers['X-CLIENT-UUID'])
+    next_offset = next_username_offset(Domain.objects.get(name=domain), client, timezone.now())
+    return JsonResponse({'probes': list(next_offset.values())})
 
 
-
-def passwords(request, domain):
-    find = Domain.objects.get(name=domain)
-    data = find.password_set.all()[find.password_offset:find.password_offset + find.chunk_size]
-    find.password_offset += find.chunk_size
-    find.save()
-    # TODO : race condition
-    return JsonResponse({'passwords': list(data)})
+def ack(request, domain):
+    client_uuid = request.headers['X-CLIENT-UUID']
+    client = Client.objects.get(uuid=client_uuid)
+    if client.current_offset.domain.name != domain:
+        raise Exception('Bad domain for client {} that send ack for domain {}', client, domain)
+    offset.ack(client)
+    return HttpResponse(status=204)
