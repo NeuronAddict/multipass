@@ -1,7 +1,7 @@
 import uuid
 
 from django.conf import settings
-from django.db import models
+from django.db import models, connection
 from django.utils import timezone
 
 
@@ -20,7 +20,15 @@ class Offset(models.Model):
     domain = models.ForeignKey(Domain, on_delete=models.CASCADE, null=True)
 
     def values(self):
-        raise NotImplementedError()
+        with connection.cursor() as cursor:
+            cursor.execute(
+                'SELECT username,password FROM app_password, app_username ORDER BY app_password.id, app_username.id LIMIT %s OFFSET %s',
+                [self.domain.chunk_size, self.value])
+            while True:
+                res = cursor.fetchone()
+                if res is None:
+                    break
+                yield {'username': res[0], 'password': res[1]}
 
 
 class Client(models.Model):
@@ -30,7 +38,7 @@ class Client(models.Model):
     current_offset = models.ForeignKey(Offset, on_delete=models.PROTECT, null=True)
 
     def __str__(self):
-        return "<Client: ip: {},user_agent: {}>"\
+        return "<Client: ip: {},user_agent: {}>" \
             .format(self.ip, self.user_agent)
 
 

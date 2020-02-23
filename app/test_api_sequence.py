@@ -1,4 +1,4 @@
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch
 
 from django.test import Client, TestCase
 from django.utils import timezone
@@ -13,10 +13,10 @@ class SequenceTest(TestCase):
         cls.domain = Domain(name='victim', url='victim.org', chunk_size=4)
         cls.domain.save()
 
-        for i in range(1, 6):
+        for i in range(0, 5):
             cls.domain.username_set.create(username='username{}'.format(i))
 
-        for i in range(1, 6):
+        for i in range(0, 5):
             cls.domain.password_set.create(password='password{}'.format(i))
 
         cls.first_client = Client(ip='192.168.0.1', user_agent='tester 1')
@@ -45,7 +45,7 @@ class SequenceTest(TestCase):
 
         with patch.object(timezone, 'now', return_value=self.date2):
 
-            response = self.client.get('/app/victim/passwords/', HTTP_X_CLIENT_UUID=self.first_client.uuid)
+            response = self.client.get('/app/victim/probes/', HTTP_X_CLIENT_UUID=self.first_client.uuid)
             self.assert_response_range(response, 4)
 
             self.ack(self.first_client)
@@ -55,10 +55,10 @@ class SequenceTest(TestCase):
 
         with patch.object(timezone, 'now', return_value=self.date3):
 
-            response = self.client.get('/app/victim/passwords/', HTTP_X_CLIENT_UUID=self.first_client.uuid)
+            response = self.client.get('/app/victim/probes/', HTTP_X_CLIENT_UUID=self.first_client.uuid)
             self.assert_response_range(response, 8)
 
-            response = self.client.get('/app/victim/usernames/', HTTP_X_CLIENT_UUID=self.second_client.uuid)
+            response = self.client.get('/app/victim/probes/', HTTP_X_CLIENT_UUID=self.second_client.uuid)
             self.assert_response_range(response, 12)
 
             self.ack(self.first_client)
@@ -69,11 +69,9 @@ class SequenceTest(TestCase):
         self.assertEquals(response.status_code, 204)
 
     def assert_response_range(self, response, offset):
-        password_index = int(offset / 5)
-        username_index = offset % 5
         probes = []
         for i in range(0, 4):
-            password = 'password{}'.format((password_index+i) % 5)
-            username = 'username{}'.format((username_index+i) % 5)
+            password = 'password{}'.format(int((offset+i) / 5))
+            username = 'username{}'.format((offset+i) % 5)
             probes.append({'username': username, 'password': password})
         self.assertDictEqual(response.json(), {'probes': probes})

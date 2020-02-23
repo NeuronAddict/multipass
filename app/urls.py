@@ -10,15 +10,10 @@ urlpatterns = [
     # exfiltration of username/password
     path('<domain>/exfiltrate/', views.exfiltrate, name='exfiltrate'),
 
-    # get list of non ack usernames
-    path('<domain>/usernames/', views.usernames, name='usernames'),
+    # get list of non ack probes
+    path('<domain>/probes/', views.probes, name='probes'),
 
     # POST the tested username offset
-    path('<domain>/usernames/ack', views.usernames, name='usernames'),
+    path('<domain>/ack/', views.ack, name='ack'),
 
-    # get list of non ack passwords
-    path('<domain>/passwords/', views.passwords, name='passwords'),
-
-    # POST the tested password offset
-    path('<domain>/passwords/ack', views.usernames, name='usernames'),
 ]
