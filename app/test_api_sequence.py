@@ -32,21 +32,18 @@ class SequenceTest(TestCase):
     def test_sequence(self):
 
         with patch.object(timezone, 'now', return_value=self.date1):
-            response = self.client.get('/app/victim/probes/', HTTP_X_CLIENT_UUID=self.first_client.uuid)
-            self.assert_response_range(response, 0)
+
+            self.request_probes(self.first_client, 0)
 
             self.ack(self.first_client)
 
-            response = self.client.get('/app/victim/probes/', HTTP_X_CLIENT_UUID=self.second_client.uuid)
-            self.assert_response_range(response, 4)
+            self.request_probes(self.second_client, 4)
 
-            response = self.client.get('/app/victim/probes/', HTTP_X_CLIENT_UUID=self.second_client.uuid)
-            self.assert_response_range(response, 4)
+            self.request_probes(self.second_client, 4)
 
         with patch.object(timezone, 'now', return_value=self.date2):
 
-            response = self.client.get('/app/victim/probes/', HTTP_X_CLIENT_UUID=self.first_client.uuid)
-            self.assert_response_range(response, 4)
+            self.request_probes(self.first_client, 4)
 
             self.ack(self.first_client)
 
@@ -55,14 +52,16 @@ class SequenceTest(TestCase):
 
         with patch.object(timezone, 'now', return_value=self.date3):
 
-            response = self.client.get('/app/victim/probes/', HTTP_X_CLIENT_UUID=self.first_client.uuid)
-            self.assert_response_range(response, 8)
+            self.request_probes(self.first_client, 8)
 
-            response = self.client.get('/app/victim/probes/', HTTP_X_CLIENT_UUID=self.second_client.uuid)
-            self.assert_response_range(response, 12)
+            self.request_probes(self.second_client, 12)
 
             self.ack(self.first_client)
             self.ack(self.second_client)
+
+    def request_probes(self, client: Client, expected_chunk_number):
+        response = self.client.get('/app/victim/probes/', HTTP_X_CLIENT_UUID=client.uuid)
+        self.assert_response_range(response, expected_chunk_number)
 
     def ack(self, client):
         response = self.client.get('/app/victim/ack/', HTTP_X_CLIENT_UUID=client.uuid)
