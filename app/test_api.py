@@ -18,18 +18,13 @@ class GetProbeTest(TestCase):
         cls.first_client = Client(ip='192.168.0.1', user_agent='tester 1')
         cls.first_client.save()
 
-    def test_get_usernames(self):
-        response = self.client.get('/app/victim/usernames/', HTTP_X_CLIENT_UUID=self.first_client.uuid)
-        self.assertDictEqual(response.json(), {'usernames': [
-            {'username': 'joseph'},
-            {'username': 'pablo'},
-        ]})
-
-    def test_get_passwords(self):
-        response = self.client.get('/app/victim/passwords/', HTTP_X_CLIENT_UUID=self.first_client.uuid)
-        self.assertDictEqual(response.json(), {'passwords': [
-            {'password': 'coucou'},
-            {'password': 'secret'},
+    def test_get_probes(self):
+        response = self.client.get('/app/victim/probes/', HTTP_X_CLIENT_UUID=self.first_client.uuid)
+        self.assertDictEqual(response.json(), {'probes': [
+            {'username': 'joseph', 'password': 'coucou'},
+            {'username': 'pablo', 'password': 'coucou'},
+            {'username': 'joseph', 'password': 'secret'},
+            {'username': 'pablo', 'password': 'secret'},
         ]})
 
     def test_get_exfiltrate(self):
