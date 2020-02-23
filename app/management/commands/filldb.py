@@ -1,6 +1,6 @@
 from django.core.management.base import BaseCommand, CommandError
 
-from app.models import Username, Password
+from app.models import Username, Password, Domain
 
 
 class Command(BaseCommand):
@@ -15,6 +15,9 @@ class Command(BaseCommand):
 
 
 def fake_probes():
+
+    Domain(name='victim', chunk_size=256).save()
+
     with open('dict/top-usernames-shortlist.txt') as file:
         for line in file:
             Username(username=line.rstrip()).save()
