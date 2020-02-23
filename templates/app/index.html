@@ -59,15 +59,14 @@
             }
         };
 
-        data = true;
-        for(var i = 0; i < 5; i++) {
-
-            fetch('/app/{{ domain.name }}/probes/', init)
+        moredata = true;
+        async function getNextChunk() {
+            await fetch('/app/{{ domain.name }}/probes/', init)
                 .then(response => {
                     response.json().then(function (probes) {
                         if(probes.probes.length === 0) {
                             console.log('no data, stop...');
-                            data = false;
+                            moredata = false;
                         }
                         else {
                             probes.probes.forEach(function (probe) {
@@ -77,6 +76,11 @@
                         ack();
                     });
                 });
+        }
+
+
+        for(var i = 0; i < 5; i++) {
+            getNextChunk();
         }
 
 
