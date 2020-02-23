@@ -5,7 +5,7 @@ from django.utils import timezone
 
 from app.models import Domain, Client
 
-CHUNK_SIZE = 4
+CHUNK_SIZE = 10
 PROBES_COUNT = 5
 
 
@@ -76,7 +76,7 @@ class SequenceTest(TestCase):
 
     def assert_response_range(self, response, offset):
         probes = []
-        for i in range(0, PROBES_COUNT - 1):
+        for i in range(0, CHUNK_SIZE):
             if offset + i >= PROBES_COUNT * PROBES_COUNT:
                 break
             password = 'password{}'.format(int((offset + i) / PROBES_COUNT))
