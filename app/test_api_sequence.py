@@ -1,4 +1,7 @@
+from unittest.mock import patch, MagicMock
+
 from django.test import Client, TestCase
+from django.utils import timezone
 
 from app.models import Domain, Client
 
@@ -7,7 +10,7 @@ class SequenceTest(TestCase):
 
     @classmethod
     def setUpTestData(cls):
-        cls.domain = Domain(name='victim', url='victim.org', chunk_size=2)
+        cls.domain = Domain(name='victim', url='victim.org', chunk_size=4)
         cls.domain.save()
 
         for i in range(1, 6):
@@ -22,27 +25,55 @@ class SequenceTest(TestCase):
         cls.second_client = Client(ip='192.168.0.1', user_agent='tester 1')
         cls.second_client.save()
 
+        cls.date1 = timezone.datetime(2020, 2, 20, 0, 0, 0)
+        cls.date2 = timezone.datetime(2020, 2, 20, 2, 0, 0)
+        cls.date3 = timezone.datetime(2020, 2, 20, 3, 0, 0)
+
     def test_sequence(self):
-        response = self.client.get('/app/victim/usernames/', HTTP_X_CLIENT_UUID=self.first_client.uuid)
-        self.assert_response_range(response, 'username', 1, 2)
 
-        response = self.client.get('/app/victim/passwords/', HTTP_X_CLIENT_UUID=self.second_client.uuid)
-        self.assert_response_range(response, 'password', 1, 2)
+        with patch.object(timezone, 'now', return_value=self.date1):
+            response = self.client.get('/app/victim/probes/', HTTP_X_CLIENT_UUID=self.first_client.uuid)
+            self.assert_response_range(response, 0)
 
-        response = self.client.get('/app/victim/usernames/', HTTP_X_CLIENT_UUID=self.second_client.uuid)
-        self.assert_response_range(response, 'username', 3, 4)
+            self.ack(self.first_client)
 
-        response = self.client.get('/app/victim/passwords/', HTTP_X_CLIENT_UUID=self.first_client.uuid)
-        self.assert_response_range(response, 'password', 3, 4)
+            response = self.client.get('/app/victim/probes/', HTTP_X_CLIENT_UUID=self.second_client.uuid)
+            self.assert_response_range(response, 4)
 
-        response = self.client.get('/app/victim/passwords/', HTTP_X_CLIENT_UUID=self.first_client.uuid)
-        self.assert_response_range(response, 'password', 5, 5)
+            response = self.client.get('/app/victim/probes/', HTTP_X_CLIENT_UUID=self.second_client.uuid)
+            self.assert_response_range(response, 4)
 
-        response = self.client.get('/app/victim/usernames/', HTTP_X_CLIENT_UUID=self.second_client.uuid)
-        self.assert_response_range(response, 'username', 5, 5)
+        with patch.object(timezone, 'now', return_value=self.date2):
 
-    def assert_response_range(self, response, keyword, begin, end):
-        lst = []
-        for i in range(begin, end + 1):
-            lst.append({keyword: '{}{}'.format(keyword, i)})
-        self.assertDictEqual(response.json(), {'{}s'.format(keyword): lst})
+            response = self.client.get('/app/victim/passwords/', HTTP_X_CLIENT_UUID=self.first_client.uuid)
+            self.assert_response_range(response, 4)
+
+            self.ack(self.first_client)
+
+            # ack must not have effects
+            self.ack(self.second_client)
+
+        with patch.object(timezone, 'now', return_value=self.date3):
+
+            response = self.client.get('/app/victim/passwords/', HTTP_X_CLIENT_UUID=self.first_client.uuid)
+            self.assert_response_range(response, 8)
+
+            response = self.client.get('/app/victim/usernames/', HTTP_X_CLIENT_UUID=self.second_client.uuid)
+            self.assert_response_range(response, 12)
+
+            self.ack(self.first_client)
+            self.ack(self.second_client)
+
+    def ack(self, client):
+        response = self.client.get('/app/victim/ack/', HTTP_X_CLIENT_UUID=client.uuid)
+        self.assertEquals(response.status_code, 204)
+
+    def assert_response_range(self, response, offset):
+        password_index = int(offset / 5)
+        username_index = offset % 5
+        probes = []
+        for i in range(0, 4):
+            password = 'password{}'.format((password_index+i) % 5)
+            username = 'username{}'.format((username_index+i) % 5)
+            probes.append({'username': username, 'password': password})
+        self.assertDictEqual(response.json(), {'probes': probes})
