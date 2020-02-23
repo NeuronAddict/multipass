@@ -13,32 +13,25 @@ class Domain(models.Model):
     password_offset = models.IntegerField(default=0)
 
 
+class Offset(models.Model):
+    value = models.PositiveIntegerField()
+    ack = models.BooleanField(default=False)
+    last_send = models.DateTimeField(default=timezone.now)
+    domain = models.ForeignKey(Domain, on_delete=models.CASCADE, null=True)
+
+    def values(self):
+        raise NotImplementedError()
+
+
 class Client(models.Model):
     uuid = models.UUIDField(editable=False, default=uuid.uuid4, unique=True)
     ip = models.GenericIPAddressField(unpack_ipv4=True)
     user_agent = models.CharField(max_length=400)
+    current_offset = models.ForeignKey(Offset, on_delete=models.PROTECT, null=True)
 
     def __str__(self):
         return "<Client: ip: {},user_agent: {}>"\
             .format(self.ip, self.user_agent)
-
-
-class Offset(models.Model):
-    value = models.PositiveIntegerField()
-    type = models.type = models.PositiveSmallIntegerField(choices=[(1, 'password'), (0, 'username')])
-    ack = models.BooleanField(default=False)
-    last_send = models.DateTimeField(default=timezone.now)
-    client = models.ForeignKey(Client, on_delete=models.PROTECT)
-    domain = models.ForeignKey(Domain, on_delete=models.CASCADE)
-
-    def values(self):
-        index = self.value+1
-        if self.type == 0:
-            return Username.objects.filter(id__range=[index, index + self.domain.chunk_size-1]).values('username')
-        else:
-            if self.type == 1:
-                return Password.objects.filter(id__range=[index, index + self.domain.chunk_size-1]).values('password')
-            raise Exception('Bad type for Offset {}: {}'.format(self, self.type))
 
 
 class Username(models.Model):
