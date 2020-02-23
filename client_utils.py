@@ -1,10 +1,13 @@
 import logging
 
+from django.db import transaction
+
 from app.models import Client
 
 logger = logging.getLogger('app.client')
 
 
+@transaction.atomic
 def get_client(request, uuid):
     """
     Get a client or create if not exists
