@@ -34,46 +34,33 @@ class OffsetTests(TestCase):
         date2 = timezone.datetime(2020, 2, 20, 2, 0, 0)
         date3 = timezone.datetime(2020, 2, 20, 3, 0, 0)
 
-        offset1 = next_username_offset(self.domain, self.first_client, date1)
-        self.assertEqual(offset1.value, 0)
-        self.assertEqual(offset1.client, self.first_client)
+        self.request_offset(self.first_client, date1, 0)
 
-        ack(offset1)
+        ack(self.first_client)
 
-        offset2 = next_username_offset(self.domain, self.bogged_client, date1)
-        offset2.save()
-        self.assertEqual(offset2.value, CHUNK_SIZE)
-        self.assertEqual(offset2.client, self.bogged_client)
+        self.request_offset(self.bogged_client, date1, 1)
 
-        offset3 = next_username_offset(self.domain, self.first_client, date1)
-        offset3.save()
-        self.assertEqual(offset3.value, CHUNK_SIZE*2)
-        self.assertEqual(offset3.client, self.first_client)
+        self.request_offset(self.first_client, date1, 2)
 
-        offset2_2 = next_username_offset(self.domain, self.second_client, date2)
-        self.assertEqual(offset2_2.value, CHUNK_SIZE)
-        self.assertEqual(offset2_2.client, self.second_client)
+        ack(self.first_client)
 
-        ack(offset3)
+        self.request_offset(self.second_client, date2, 1)
 
-        ack(offset2_2)
+        ack(self.second_client)
 
-        offset4 = next_username_offset(self.domain, self.first_client, date2)
-        self.assertEqual(offset4.value, CHUNK_SIZE*3)
-        self.assertEqual(offset4.client, self.first_client)
+        self.request_offset(self.first_client, date2, 3)
 
-        offset5 = next_username_offset(self.domain, self.second_client, date2)
-        self.assertEqual(offset5.value, CHUNK_SIZE * 4)
-        self.assertEqual(offset5.client, self.second_client)
+        self.request_offset(self.second_client, date2, 4)
 
-        offset6 = next_username_offset(self.domain, self.bogged_client, date2)
-        self.assertEqual(offset6.value, CHUNK_SIZE * 5)
-        self.assertEqual(offset6.client, self.bogged_client)
+        self.request_offset(self.second_client, date2, 4)
 
-        ack(offset4)
+        ack(self.first_client)
 
-        ack(offset5)
+        ack(self.second_client)
 
-        offset6_2 = next_username_offset(self.domain, self.second_client, date3)
-        self.assertEqual(offset6_2.value, CHUNK_SIZE * 5)
-        self.assertEqual(offset6_2.client, self.second_client)
+        self.request_offset(self.second_client, date3, 5)
+
+    def request_offset(self, client: Client, date: timezone.datetime, assert_chunk_number):
+        offset = next_username_offset(self.domain, client, date)
+        self.assertEqual(offset.value, CHUNK_SIZE * assert_chunk_number)
+        self.assertEqual(client.current_offset, offset)
