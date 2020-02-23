@@ -2,7 +2,7 @@ import json
 
 from django.test import TestCase
 
-from .models import Domain
+from app.models import Domain
 
 
 class AppModelTests(TestCase):
