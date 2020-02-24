@@ -4,12 +4,14 @@ python:
   - "3.6"
 
 before_install:
-  - wget https://github.com/mozilla/geckodriver/releases/download/v0.26.0/geckodriver-v0.26.0-linux32.tar.gz
-  - mkdir geckodriver && tar zxvf geckodriver-v0.26.0-linux32.tar.gz -C geckodriver
-  - export PATH=$PWD/geckodriver:$PATH
+  - wget https://github.com/mozilla/geckodriver/releases/download/v0.24.0/geckodriver-v0.24.0-linux32.tar.gz
+  - tar -xvzf geckodriver-v0.24.0-linux32.tar.gz
+  - chmod +x geckodriver
+  - mkdir -p $PWD/geckodriver && mv geckodriver $PWD/geckodriver
+  - export PATH="$PWD/geckodriver:$PATH"
 
 install:
   - pip install -r requirements.txt
 
 script:
-  - python manage.py test
+  - echo $PATH && ls -al $PWD/geckodriver && geckodriver --version && python manage.py test
