@@ -14,4 +14,4 @@ install:
   - pip install -r requirements.txt
 
 script:
-  - echo $PATH && ls -al $PWD/selenium && geckodriver --version && python manage.py test
+  - python manage.py test
