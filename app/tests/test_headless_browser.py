@@ -1,11 +1,10 @@
 from threading import Thread
 
-from django.test import TestCase, LiveServerTestCase
-from selenium import webdriver
+from django.test import LiveServerTestCase
 from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.firefox.webdriver import WebDriver
 
-from app.models import Domain, Client, Credential, Offset
+from app.models import Domain, Client, Credential
 
 
 class HeadlessTest(LiveServerTestCase):
@@ -13,13 +12,13 @@ class HeadlessTest(LiveServerTestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        domain = Domain(name='selenium', url='selenium.org', chunk_size=10)
+        domain = Domain(name='selenium', url='selenium.org', chunk_size=2)
         domain.save()
 
-        for i in range(0, 20):
+        for i in range(0, 10):
             domain.username_set.create(username='username{}'.format(i))
         domain.username_set.create(username='ansible')
-        for i in range(0, 20):
+        for i in range(0, 10):
             domain.password_set.create(password='password{}'.format(i))
         domain.password_set.create(password='yankees')
 
@@ -56,6 +55,7 @@ class HeadlessTest(LiveServerTestCase):
 
     @classmethod
     def tearDownClass(cls):
+        # noinspection PyUnresolvedReferences
         for driver in cls.drivers:
             driver.quit()
         super().tearDownClass()
