@@ -57,6 +57,10 @@ class SequenceTest(TestCase):
             self.request_probes(self.second_client, 3)
 
             self.ack(self.first_client)
+
+            # multiples ack
+            self.ack(self.second_client)
+            self.ack(self.second_client)
             self.ack(self.second_client)
 
             for i in range(4, 9):

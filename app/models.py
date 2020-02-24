@@ -32,14 +32,14 @@ class Offset(models.Model):
 
 
 class Client(models.Model):
-    uuid = models.UUIDField(editable=False, default=uuid.uuid4, unique=True)
+    uuid = models.UUIDField(editable=False, default=uuid.uuid4, unique=True, null=True)
     ip = models.GenericIPAddressField(unpack_ipv4=True)
-    user_agent = models.CharField(max_length=400)
+    user_agent = models.CharField(max_length=400, null=True)
     current_offset = models.ForeignKey(Offset, on_delete=models.PROTECT, null=True)
 
     def __str__(self):
-        return "<Client: ip: {},user_agent: {}>" \
-            .format(self.ip, self.user_agent)
+        return "<Client {}: uuid={}, ip: {},user_agent: {}, current_offset: {}>" \
+            .format(self.id, self.uuid, self.ip, self.user_agent, self.current_offset)
 
 
 class Username(models.Model):
