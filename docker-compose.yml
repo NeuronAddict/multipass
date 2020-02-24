@@ -3,9 +3,15 @@ version: '3'
 services:
   db:
     image: postgres
+    environment:
+    - POSTGRES_USER=django
+    - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    - POSTGRES_DB=db
   web:
     build: .
-    command: python manage.py runserver 0.0.0.0:8000
+    command: docker/run.sh
+    environment:
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
     volumes:
       - .:/code
     ports:
