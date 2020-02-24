@@ -35,3 +35,12 @@ class GetProbeTest(TestCase):
         self.assertIs(len(creds), 1)
         self.assertEqual(creds[0].username, 'pablo')
         self.assertEqual(creds[0].password, 'coucou')
+
+    def test_client_without_uuid(self):
+        response = self.client.get('/app/victim/probes/')
+        self.assertDictEqual(response.json(), {'probes': [
+            {'username': 'joseph', 'password': 'coucou'},
+            {'username': 'pablo', 'password': 'coucou'},
+            {'username': 'joseph', 'password': 'secret'},
+            {'username': 'pablo', 'password': 'secret'},
+        ]})
