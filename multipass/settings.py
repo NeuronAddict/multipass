@@ -13,6 +13,8 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 import os
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
+import sys
+
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
@@ -124,3 +126,9 @@ STATIC_URL = '/static/'
 
 # specific configuration
 DEFAULT_CHUNK_SIZE = 256
+
+if 'test' in sys.argv:
+    from multipass.test_settings import *
+else:
+    if os.environ.get('DOCKER_CONTAINER') is not None:
+        from multipass.docker_settings import *
