@@ -23,13 +23,14 @@ class HeadlessTest(LiveServerTestCase):
         domain.password_set.create(password='yankees')
 
         options = Options()
+        options.add_argument('-headless')
         options.headless = True
 
         cls.drivers = [
-            Firefox(options=options),
-            Firefox(options=options),
-            Firefox(options=options),
-            Firefox(options=options)
+            Firefox(firefox_options=options),
+            Firefox(firefox_options=options),
+            Firefox(firefox_options=options),
+            Firefox(firefox_options=options)
         ]
 
     def test_exfiltration(self):
