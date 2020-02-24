@@ -1,8 +1,8 @@
 from threading import Thread
 
 from django.test import LiveServerTestCase
+from selenium.webdriver import Firefox
 from selenium.webdriver.firefox.options import Options
-from selenium.webdriver.firefox.webdriver import WebDriver
 
 from app.models import Domain, Client, Credential
 
@@ -26,10 +26,10 @@ class HeadlessTest(LiveServerTestCase):
         options.headless = True
 
         cls.drivers = [
-            WebDriver(options=options),
-            WebDriver(options=options),
-            WebDriver(options=options),
-            WebDriver(options=options)
+            Firefox(options=options),
+            Firefox(options=options),
+            Firefox(options=options),
+            Firefox(options=options)
         ]
 
     def test_exfiltration(self):
