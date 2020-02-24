@@ -9,7 +9,6 @@ services:
     - POSTGRES_DB=db
   web:
     build: .
-    command: docker/run.sh
     environment:
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
     volumes:
