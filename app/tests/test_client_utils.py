@@ -75,10 +75,11 @@ class Test(TestCase):
         self.assertIsNone(client.user_agent)
 
     def test_get_existing_client_without_uuid(self):
-        client = Client(ip='129.168.0.1', user_agent='tester_existing', uuid=None)
+        ip = '192.168.2.3'
+        client = Client(ip=ip, user_agent='tester_existing', uuid=None)
         client.save()
 
-        other = Client(ip='129.168.0.1', user_agent='tester_existing 2', uuid=None)
+        other = Client(ip=ip, user_agent='tester_existing 2', uuid=None)
         other.save()
 
         request = HttpRequest()
@@ -87,6 +88,6 @@ class Test(TestCase):
             'User-Agent': 'tester_existing'
         }
         request.META = {
-            'REMOTE_ADDR': '192.168.0.1'
+            'REMOTE_ADDR': ip
         }
         self.assertEquals(client, get_client(request))

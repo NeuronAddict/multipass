@@ -30,15 +30,13 @@ def exfiltrate(request, domain):
 
 
 def probes(request, domain):
-    client_uuid = request.headers['X-CLIENT-UUID']
-    client = get_client(request, client_uuid)
+    client = get_client(request)
     next_offset = next_username_offset(Domain.objects.get(name=domain), client, timezone.now())
     return JsonResponse({'probes': list(next_offset.values())})
 
 
 def ack(request, domain):
-    client_uuid = request.headers['X-CLIENT-UUID']
-    client = Client.objects.get(uuid=client_uuid)
+    client = get_client(request)
     if client.current_offset is None:
         return HttpResponse(status=204)
     else:
