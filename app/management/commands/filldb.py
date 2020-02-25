@@ -16,7 +16,7 @@ class Command(BaseCommand):
 
 def fake_probes():
 
-    Domain(name='victim', chunk_size=256).save()
+    Domain(name='example', chunk_size=256).save()
 
     with open('dict/top-usernames-shortlist.txt') as file:
         for line in file:
