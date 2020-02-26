@@ -1,3 +1,4 @@
+import pytz
 from django.test import TestCase
 
 from app.offset import *
@@ -30,9 +31,9 @@ class OffsetTests(TestCase):
         :return:
         """
 
-        date1 = timezone.datetime(2020, 2, 20, 0, 0, 0)
-        date2 = timezone.datetime(2020, 2, 20, 2, 0, 0)
-        date3 = timezone.datetime(2020, 2, 20, 3, 0, 0)
+        date1 = timezone.datetime(2020, 2, 20, 0, 0, 0, tzinfo=pytz.UTC)
+        date2 = timezone.datetime(2020, 2, 20, 2, 0, 0, tzinfo=pytz.UTC)
+        date3 = timezone.datetime(2020, 2, 20, 3, 0, 0, tzinfo=pytz.UTC)
 
         self.request_offset(self.first_client, date1, 0)
 
