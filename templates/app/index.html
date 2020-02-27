@@ -10,8 +10,7 @@
 <h1>Hum, are you hacked?</h1>
 <p style="padding: 10px 20px; text-align: center;">May be visit this page is a bad idea</p>
 
-
-<script type="text/javascript" async src="{% static "app/defer.js" %}" domain="example" defered="http://127.0.0.1:8000/static/app/multipass.js"></script>
+<script type="text/javascript" async src="{% static "app/defer.js" %}" domain="example" defered="{% static "app/multipass.js" %}"></script>
 </body>
 
 </html>
