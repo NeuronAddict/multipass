@@ -3,15 +3,21 @@ language: python
 python:
   - "3.6"
 
+services:
+  - docker
+
 before_install:
   - wget https://github.com/mozilla/geckodriver/releases/download/v0.24.0/geckodriver-v0.24.0-linux32.tar.gz
   - tar -xvzf geckodriver-v0.24.0-linux32.tar.gz
   - chmod +x geckodriver
   - mkdir -p $PWD/selenium && mv geckodriver $PWD/selenium
   - export PATH="$PWD/selenium:$PATH"
+  - docker run -d -e POSTGRES_PASSWORD=test -e POSTGRES_USER=django -e POSTGRES_DB=db -p 5432:5432
 
 install:
   - pip install -r requirements.txt
 
-script:
-  - python manage.py test
+test:
+  - DJANGO_ENV=test python manage.py test
+preprod:
+  - DJANGO_ENV=preprod POSTGRES_PASSWORD=test python manage.py test --noinput
