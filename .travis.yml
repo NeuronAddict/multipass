@@ -17,7 +17,6 @@ before_install:
 install:
   - pip install -r requirements.txt
 
-test:
+script:
   - DJANGO_ENV=test python manage.py test
-preprod:
   - DJANGO_ENV=preprod POSTGRES_PASSWORD=test python manage.py test --noinput
