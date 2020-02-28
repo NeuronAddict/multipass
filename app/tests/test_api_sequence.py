@@ -1,5 +1,6 @@
 from unittest.mock import patch
 
+import pytz
 from django.test import Client, TestCase
 from django.utils import timezone
 
@@ -28,9 +29,9 @@ class SequenceTest(TestCase):
         cls.second_client = Client(ip='192.168.0.1', user_agent='tester 1')
         cls.second_client.save()
 
-        cls.date1 = timezone.datetime(2020, 2, 20, 0, 0, 0)
-        cls.date2 = timezone.datetime(2020, 2, 20, 2, 0, 0)
-        cls.date3 = timezone.datetime(2020, 2, 20, 3, 0, 0)
+        cls.date1 = timezone.datetime(2020, 2, 20, 0, 0, 0, tzinfo=pytz.UTC)
+        cls.date2 = timezone.datetime(2020, 2, 20, 2, 0, 0, tzinfo=pytz.UTC)
+        cls.date3 = timezone.datetime(2020, 2, 20, 3, 0, 0, tzinfo=pytz.UTC)
 
     def test_sequence(self):
 

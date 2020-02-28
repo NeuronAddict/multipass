@@ -15,8 +15,7 @@ import os
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import sys
 
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
@@ -24,7 +23,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = '-%pih$^^!)t-3dj)0nbz9c&byc8o8)bq4b5)6(d94=zwm52_14'
 
-# SECURITY WARNING: don't run with debug turned on in production!
+# SECURITY WARNING: don't run with debug turned on in pr1oduction!
 DEBUG = True
 
 ALLOWED_HOSTS = []
@@ -57,8 +56,7 @@ ROOT_URLCONF = 'multipass.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, 'templates')]
-        ,
+        'DIRS': [os.path.join(BASE_DIR, 'templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -74,15 +72,6 @@ TEMPLATES = [
 WSGI_APPLICATION = 'multipass.wsgi.application'
 
 
-# Database
-# https://docs.djangoproject.com/en/3.0/ref/settings/#databases
-
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-    }
-}
 
 
 # Password validation
@@ -122,13 +111,14 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
 
 STATIC_URL = '/static/'
-
+STATIC_ROOT = ''
+STATICFILES_DIRS = (os.path.join('static'), )
 
 # specific configuration
 DEFAULT_CHUNK_SIZE = 256
 
-if 'test' in sys.argv:
-    from multipass.test_settings import *
-else:
-    if os.environ.get('DOCKER_CONTAINER') is not None:
-        from multipass.docker_settings import *
+# if 'test' in sys.argv:
+#     from multipass.test_settings import *
+# else:
+#     if os.environ.get('DOCKER_CONTAINER') is not None:
+#         from multipass.docker_settings import *
