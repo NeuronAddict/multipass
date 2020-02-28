@@ -1,6 +1,6 @@
 import os
 
-from multipass.settings import BASE_DIR
+from multipass.settings.components.settings import BASE_DIR
 
 DATABASES = {
     'default': {

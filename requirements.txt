@@ -5,3 +5,4 @@ sqlparse==0.3.0
 mock
 selenium
 psycopg2
+django-split-settings
