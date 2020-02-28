@@ -1,4 +1,6 @@
+import os
 from threading import Thread
+from unittest import skipUnless
 
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from django.test import override_settings
@@ -23,6 +25,7 @@ class credentials_found(object):
         return Credential.objects.filter(username=self.username, password=self.password).exists()
 
 
+@skipUnless(os.environ.get('DJANGO_ENV') == 'preprod', 'This test must be run on preprod')
 @override_settings(DEBUG=True)
 class HeadlessTest(StaticLiveServerTestCase):
     """
