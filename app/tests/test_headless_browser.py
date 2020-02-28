@@ -3,6 +3,7 @@ from threading import Thread
 from unittest import skipUnless
 
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
+from django.db import connection
 from django.test import override_settings
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver import Firefox, DesiredCapabilities
@@ -79,6 +80,7 @@ class HeadlessTest(StaticLiveServerTestCase):
                 print('creds found ...')
                 found_creds = True
             finally:
+                connection.close()
                 driver.quit()
 
         for driver in self.drivers:
